@@ -132,6 +132,8 @@ html[data-material="off"] .portrait-hdr{display:none}
 #material-toggle[aria-checked="false"] .material-sparkles{opacity:.55;transform:scale(.86) rotate(-12deg)}
 #material-toggle[aria-checked="false"] .material-slash{opacity:1;stroke-dashoffset:0}
 .theme-disc{fill:currentColor;stroke:none}
+.theme-icon{transform:scale(1.7);transition:transform .55s cubic-bezier(.22,1,.36,1)}
+#theme-toggle[aria-checked="true"] .theme-icon{transform:scale(1)}
 .theme-cutout{transform:translate(0,0);transition:transform .55s cubic-bezier(.22,1,.36,1)}
 .theme-rays{opacity:0;transform:scale(.55) rotate(-40deg)}
 #theme-toggle[aria-checked="true"] .theme-cutout{transform:translate(12px,-12px)}
@@ -140,4 +142,4 @@ html[data-material="off"] .portrait-hdr{display:none}
 .is-phone .menu-action.is-returning .back-top-icon{animation:menu-arrow-rise .6s cubic-bezier(.22,1,.36,1)}
 @keyframes material-click{0%,100%{transform:scale(1) rotate(0)}35%{transform:scale(.76) rotate(-16deg)}70%{transform:scale(1.16) rotate(9deg)}}
 @keyframes menu-arrow-rise{0%,100%{transform:translateY(0)}40%,65%{transform:translateY(-8px)}85%{transform:translateY(2px)}}
-@media(prefers-reduced-motion:reduce){.is-phone .mobile-menu .menu-action,.is-phone .mobile-menu.is-open .menu-action,.menu-dots,.material-sparkles,.material-slash,.theme-cutout,.theme-rays{transition:none}#material-toggle.is-changing .material-icon,.is-phone .menu-action.is-returning .back-top-icon{animation:none}}
+@media(prefers-reduced-motion:reduce){.is-phone .mobile-menu .menu-action,.is-phone .mobile-menu.is-open .menu-action,.menu-dots,.material-sparkles,.material-slash,.theme-icon,.theme-cutout,.theme-rays{transition:none}#material-toggle.is-changing .material-icon,.is-phone .menu-action.is-returning .back-top-icon{animation:none}}
