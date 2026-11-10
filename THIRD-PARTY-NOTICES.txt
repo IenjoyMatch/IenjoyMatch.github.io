@@ -1,0 +1,8 @@
+Third-party notice
+
+The circular edge-refraction and chromatic-dispersion logic in glass.js is adapted from the provided miuix_liquid_lens.frag and AndroidLiquidGlass.
+Copyright 2025 Kyant. Licensed under the Apache License, Version 2.0; see LICENSE-APACHE-2.0.txt.
+
+Modifications: adapted rounded-rectangle SDF refraction to a circular web control, replaced Flutter texture sampling with seven SVG backdrop samples, and approximated directional bloom-stroke lighting for the browser. The reference shader files come from 07lixuanqing/miuix_flutter (Apache License 2.0).
+
+This website uses the MiSans font, copyright Xiaomi. The original font license is included as MiSans-LICENSE.pdf.
