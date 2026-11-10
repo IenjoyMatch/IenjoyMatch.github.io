@@ -1,6 +1,8 @@
 (() => {
-  const button = document.querySelector('.back-top');
-  if (!button) return;
+  const menu = document.querySelector('.mobile-menu');
+  const button = menu?.querySelector('.menu-trigger');
+  const buttons = menu ? [...menu.querySelectorAll('.back-top')] : [];
+  if (!button || !buttons.length) return;
   const ua = navigator.userAgent || '';
   const isIPad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
   const androidPhone = /Android/i.test(ua) &&
@@ -134,7 +136,7 @@
         image.onerror = () => resolve(false);
         image.src = map.url;
       }))).then(loaded => {
-        if (loaded.every(Boolean)) button.classList.add('glass-lens-ready');
+        if (loaded.every(Boolean)) buttons.forEach(control => control.classList.add('glass-lens-ready'));
       });
     } catch (_) {
       // Keep the blur-only surface if canvas or SVG filters are unavailable.
@@ -144,18 +146,6 @@
   function parseColor(value) {
     const match = value.match(/^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)$/i);
     return match ? [Number(match[1]), Number(match[2]), Number(match[3]), match[4] === undefined ? 1 : Number(match[4])] : null;
-  }
-
-  function textAtPoint(element, x, y) {
-    for (const node of element.childNodes) {
-      if (node.nodeType !== Node.TEXT_NODE || !node.nodeValue.trim()) continue;
-      const range = document.createRange();
-      range.selectNodeContents(node);
-      const hit = [...range.getClientRects()].some(rect => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
-      range.detach?.();
-      if (hit) return true;
-    }
-    return false;
   }
 
   const imageCache = new WeakMap();
@@ -214,70 +204,49 @@
 
   // Native backdrop-filter samples the live pixels. Nearby readable DOM / image
   // colors provide a separate, approximate contribution to the thin rim.
-  function sampleBackdrop(x, y, includeText) {
+  function sampleBackdrop(x, y) {
     x = Math.max(0, Math.min(window.innerWidth - 1, x));
     y = Math.max(0, Math.min(window.innerHeight - 1, y));
-    let r = 0, g = 0, b = 0, alpha = 0, complex = false, uncertain = false, rimReliable = true;
+    let r = 0, g = 0, b = 0, alpha = 0, rimReliable = true;
     function layer(color, opacity) {
       if (!color || alpha >= .995) return;
       const weight = (1 - alpha) * color[3] * opacity;
       r += color[0] * weight; g += color[1] * weight; b += color[2] * weight; alpha += weight;
     }
     for (const element of document.elementsFromPoint(x, y)) {
-      if (element === button || button.contains(element)) continue;
+      if (element === menu || menu.contains(element)) continue;
       const style = getComputedStyle(element), opacity = Number(style.opacity);
       if (style.visibility === 'hidden' || opacity === 0) continue;
       const tag = element.tagName.toLowerCase();
-      if (includeText && textAtPoint(element, x, y)) {
-        complex = true;
-        layer(parseColor(style.color), opacity);
-      }
       if (tag === 'img') {
-        complex = true;
         const color = imageColorAt(element, style, x, y);
-        if (color) layer(color, opacity); else { uncertain = true; rimReliable = false; }
+        if (color) layer(color, opacity); else rimReliable = false;
       } else if (['video', 'canvas', 'picture'].includes(tag)) {
-        complex = true;
-        uncertain = true;
         rimReliable = false;
       }
       if (style.backgroundImage !== 'none') {
-        complex = true;
-        // A gradient's average helps icon contrast but is not its local pixel color.
-        // Leave the rim to the native backdrop instead of painting an invented hue.
+        // A gradient's average is not its local pixel color. Leave the rim to
+        // the native backdrop instead of painting an invented hue.
         rimReliable = false;
         const estimate = gradientEstimate(style.backgroundImage);
-        if (estimate) { layer(estimate.color, opacity); uncertain ||= estimate.uncertain; } else uncertain = true;
+        if (estimate) layer(estimate.color, opacity);
       }
       layer(parseColor(style.backgroundColor), opacity);
       if (alpha >= .995) break;
     }
     if (alpha < .995) { const rest = 1 - alpha; r += 245 * rest; g += 245 * rest; b += 245 * rest; }
-    return { rgb: [r, g, b], complex, uncertain, rimReliable };
+    return { rgb: [r, g, b], rimReliable };
   }
 
-  function updateBackdropTone() {
+  function updateBackdropTone(button) {
     const rect = button.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    let brightness = 0, samples = 0, complex = false, uncertain = false;
-    for (const fy of [.28, .5, .72]) {
-      for (const fx of [.28, .5, .72]) {
-        const sample = sampleBackdrop(rect.left + rect.width * fx, rect.top + rect.height * fy, true);
-        const [r, g, b] = sample.rgb;
-        brightness += (.2126 * r + .7152 * g + .0722 * b) / 255;
-        complex ||= sample.complex; uncertain ||= sample.uncertain; samples++;
-      }
-    }
-    button.classList.toggle('glass-dark', samples > 0 && brightness / samples < .48);
-    button.classList.toggle('glass-busy', complex);
-    button.classList.toggle('glass-uncertain', uncertain);
-
     const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
     const radius = Math.min(rect.width, rect.height) / 2 + 6;
     for (let i = 0; i < 8; i++) {
       const angle = i * Math.PI / 4, dx = Math.sin(angle) * radius, dy = -Math.cos(angle) * radius;
-      const near = sampleBackdrop(cx + dx, cy + dy, false);
-      const across = sampleBackdrop(cx - dx, cy - dy, false);
+      const near = sampleBackdrop(cx + dx, cy + dy);
+      const across = sampleBackdrop(cx - dx, cy - dy);
       const nearWeight = near.rimReliable ? .62 : 0, acrossWeight = across.rimReliable ? .38 : 0;
       const weight = nearWeight + acrossWeight;
       // Two opposed, directional light responses mirror the bloom-stroke
@@ -302,14 +271,15 @@
       toneFrame = requestAnimationFrame(() => {
         toneFrame = 0;
         lastToneUpdate = performance.now();
-        updateBackdropTone();
+        const activeButtons = menu.classList.contains('is-open') ? buttons : [button];
+        activeButtons.forEach(updateBackdropTone);
       });
     };
     if (wait) toneTimer = setTimeout(queue, wait);
     else queue();
   }
 
-  function positionLight(event) {
+  function positionLight(button, event) {
     const rect = button.getBoundingClientRect();
     const clamp = value => Math.max(0, Math.min(1, value));
     const x = 16 + 68 * clamp((event.clientX - rect.left) / rect.width);
@@ -317,32 +287,36 @@
     button.style.setProperty('--glass-light-x', `${x.toFixed(1)}%`);
     button.style.setProperty('--glass-light-y', `${y.toFixed(1)}%`);
   }
-  function resetLight() {
+  function resetLight(button) {
     button.classList.remove('is-pressed');
     button.style.removeProperty('--glass-light-x');
     button.style.removeProperty('--glass-light-y');
   }
-  button.addEventListener('pointerdown', event => {
-    positionLight(event);
-    button.classList.add('is-pressed');
-    scheduleBackdropTone();
-  }, { passive: true });
-  button.addEventListener('pointermove', event => {
-    if (button.classList.contains('is-pressed')) positionLight(event);
-  }, { passive: true });
-  button.addEventListener('pointerup', resetLight, { passive: true });
-  button.addEventListener('pointercancel', resetLight, { passive: true });
-  button.addEventListener('pointerleave', resetLight, { passive: true });
+  buttons.forEach(control => {
+    control.addEventListener('pointerdown', event => {
+      positionLight(control, event);
+      control.classList.add('is-pressed');
+      scheduleBackdropTone();
+    }, { passive: true });
+    control.addEventListener('pointermove', event => {
+      if (control.classList.contains('is-pressed')) positionLight(control, event);
+    }, { passive: true });
+    control.addEventListener('pointerup', () => resetLight(control), { passive: true });
+    control.addEventListener('pointercancel', () => resetLight(control), { passive: true });
+    control.addEventListener('pointerleave', () => resetLight(control), { passive: true });
+  });
   window.addEventListener('scroll', scheduleBackdropTone, { passive: true });
   window.addEventListener('resize', scheduleBackdropTone, { passive: true });
   window.addEventListener('load', scheduleBackdropTone, { once: true });
   const backdropObserver = new MutationObserver(records => {
-    if (records.some(record => record.target !== button && !button.contains(record.target))) scheduleBackdropTone();
+    if (records.some(record => record.target !== menu && !menu.contains(record.target))) scheduleBackdropTone();
   });
   backdropObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style', 'class', 'src'] });
   const sampleInterval = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2 ? 240 : 120;
   window.setInterval(() => { if (!document.hidden) scheduleBackdropTone(); }, sampleInterval);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleBackdropTone(); });
+  window.addEventListener('portfolio:appearance', scheduleBackdropTone);
+  menu.addEventListener('transitionrun', scheduleBackdropTone);
   document.fonts?.ready.then(scheduleBackdropTone);
   scheduleBackdropTone();
   installLens();

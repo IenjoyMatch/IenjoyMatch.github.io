@@ -13,7 +13,7 @@
   let frame = 0;
   let lastDraw = 0;
 
-  const active = () => visible && !document.hidden && highRange.matches && !reducedMotion.matches;
+  const active = () => visible && !document.hidden && highRange.matches && !reducedMotion.matches && document.documentElement.dataset.material !== 'off';
 
   function resize() {
     if (!gpu) return;
@@ -151,6 +151,7 @@
   }, { rootMargin: '50px' }).observe(portrait);
   highRange.addEventListener('change', sync);
   reducedMotion.addEventListener('change', sync);
+  window.addEventListener('portfolio:appearance', sync);
   document.addEventListener('visibilitychange', sync);
   window.addEventListener('resize', resize, { passive: true });
 })();

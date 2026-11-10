@@ -7,9 +7,7 @@
     const maxY = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
     return Math.max(0, Math.min(window.scrollY, maxY));
   }
-  let previousY = currentScrollY();
   let framePending = false;
-  let awaitingFirstInteraction = true;
   let toneTimer = 0;
 
   function parseColor(value) {
@@ -33,6 +31,11 @@
   // choose a legible light/dark tint when content moves behind the navigation.
   function updateNavGlassTone() {
     toneTimer = 0;
+    if (document.documentElement.dataset.material === 'off') {
+      header.classList.toggle('nav-glass-dark', document.documentElement.dataset.theme === 'dark');
+      header.classList.remove('nav-glass-busy');
+      return;
+    }
     if (!document.elementsFromPoint) return;
     const y = Math.max(1, Math.min(window.innerHeight - 1, header.offsetHeight / 2));
     let brightness = 0, samples = 0, busy = false;
@@ -71,10 +74,6 @@
     toneTimer = window.setTimeout(() => requestAnimationFrame(updateNavGlassTone), 80);
   }
 
-  function revealNavigation() {
-    header.classList.remove('is-hidden');
-  }
-
   function updateNavigation() {
     framePending = false;
     const y = currentScrollY();
@@ -92,20 +91,6 @@
       else link.removeAttribute('aria-current');
     });
 
-    // Initial hash navigation or scroll restoration should not hide the header.
-    if (awaitingFirstInteraction) {
-      previousY = y;
-      return;
-    }
-    if (y === 0) {
-      revealNavigation();
-      previousY = y;
-      return;
-    }
-    if (Math.abs(y - previousY) > 6) {
-      header.classList.toggle('is-hidden', y > previousY);
-      previousY = y;
-    }
   }
 
   function onScroll() {
@@ -116,26 +101,14 @@
     }
   }
 
-  header.addEventListener('focusin', revealNavigation);
-  function beginUserInteraction() {
-    if (!awaitingFirstInteraction) return;
-    awaitingFirstInteraction = false;
-  }
-  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(type => {
-    window.addEventListener(type, beginUserInteraction, { passive: true, once: true });
-  });
-  window.addEventListener('load', () => {
-    if (!awaitingFirstInteraction) return;
-    previousY = currentScrollY();
-    revealNavigation();
-  }, { once: true });
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', () => { updateNavigation(); scheduleNavGlassTone(); });
   window.addEventListener('load', scheduleNavGlassTone, { once: true });
+  window.addEventListener('portfolio:appearance', scheduleNavGlassTone);
   // Backdrop pixels are filtered continuously by the browser; refresh the
   // contrast tint as well when a video or animated background changes in place.
   window.setInterval(() => {
-    if (!document.hidden && !header.classList.contains('is-hidden')) scheduleNavGlassTone();
+    if (!document.hidden) scheduleNavGlassTone();
   }, 200);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleNavGlassTone(); });
   updateNavigation();
