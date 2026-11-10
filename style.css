@@ -119,14 +119,16 @@ html[data-material="off"] .portrait-hdr{display:none}
 .is-phone .mobile-menu{--menu-step:clamp(56px,calc((100vh - 150px) / 3),60px);display:block;position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:52px;height:52px;z-index:30}
 .is-phone .mobile-menu .back-top{position:absolute;right:0;bottom:0;margin:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .is-phone .mobile-menu .menu-trigger{z-index:3}
-.is-phone .mobile-menu .menu-action{z-index:2;opacity:0;pointer-events:none;transform:translate3d(0,0,0) scale(.62);transition:transform .52s cubic-bezier(.55,0,.8,.24),opacity .18s ease .12s}
+.is-phone .mobile-menu .menu-action{z-index:2;opacity:0;pointer-events:none;transform:translate3d(0,0,0) scale(.62);transition:transform .68s cubic-bezier(.42,0,.25,1),opacity .16s ease .61s}
 .is-phone .mobile-menu.is-open .menu-action{opacity:1;pointer-events:auto;transform:translate3d(0,var(--menu-target),0) scale(1);transition:transform .68s cubic-bezier(.18,1.42,.32,1),opacity .16s ease}
 .action-top{--menu-target:calc(0px - var(--menu-step))}
 .action-theme{--menu-target:calc(0px - var(--menu-step) - var(--menu-step))}
 .action-material{--menu-target:calc(0px - var(--menu-step) - var(--menu-step) - var(--menu-step))}
 .quick-icon{position:relative;z-index:2;width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
-.menu-dots{fill:currentColor;stroke:none;transition:transform .55s cubic-bezier(.18,1.3,.32,1)}
-.mobile-menu.is-open .menu-dots{transform:rotate(180deg)}
+.menu-dots{fill:currentColor;stroke:none}
+.menu-dots circle{transition:transform .68s cubic-bezier(.18,1.2,.32,1)}
+.mobile-menu.is-open .menu-dot-top{transform:translateY(-14px)}
+.mobile-menu.is-open .menu-dot-middle{transform:translateY(-7px)}
 .material-sparkles,.theme-rays{transform-origin:14px 14px;transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .material-slash{opacity:0;stroke-dasharray:26;stroke-dashoffset:26;transition:stroke-dashoffset .32s ease,opacity .2s ease}
 #material-toggle[aria-checked="false"] .material-sparkles{opacity:.55;transform:scale(.86) rotate(-12deg)}
@@ -142,4 +144,4 @@ html[data-material="off"] .portrait-hdr{display:none}
 .is-phone .menu-action.is-returning .back-top-icon{animation:menu-arrow-rise .6s cubic-bezier(.22,1,.36,1)}
 @keyframes material-click{0%,100%{transform:scale(1) rotate(0)}35%{transform:scale(.76) rotate(-16deg)}70%{transform:scale(1.16) rotate(9deg)}}
 @keyframes menu-arrow-rise{0%,100%{transform:translateY(0)}40%,65%{transform:translateY(-8px)}85%{transform:translateY(2px)}}
-@media(prefers-reduced-motion:reduce){.is-phone .mobile-menu .menu-action,.is-phone .mobile-menu.is-open .menu-action,.menu-dots,.material-sparkles,.material-slash,.theme-icon,.theme-cutout,.theme-rays{transition:none}#material-toggle.is-changing .material-icon,.is-phone .menu-action.is-returning .back-top-icon{animation:none}}
+@media(prefers-reduced-motion:reduce){.is-phone .mobile-menu .menu-action,.is-phone .mobile-menu.is-open .menu-action,.menu-dots circle,.material-sparkles,.material-slash,.theme-icon,.theme-cutout,.theme-rays{transition:none}#material-toggle.is-changing .material-icon,.is-phone .menu-action.is-returning .back-top-icon{animation:none}}
