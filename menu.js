@@ -9,10 +9,41 @@
   if (!menu || !trigger || !actions || !material || !theme || !top || !appearance) return;
 
   const items = [material, theme, top];
+  const movingDots = [menu.querySelector('.menu-dot-top'), menu.querySelector('.menu-dot-middle')];
+  let dotAnimations = [];
   let closeTimer = 0;
   let materialTimer = 0;
   let arrowTimer = 0;
+
+  function animateDots(open) {
+    const current = movingDots.map(dot => {
+      const style = getComputedStyle(dot);
+      return { transform: style.transform === 'none' ? 'translateY(0px)' : style.transform, opacity: Number(style.opacity) };
+    });
+    dotAnimations.forEach(animation => animation.cancel());
+    dotAnimations = [];
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    movingDots.forEach((dot, index) => {
+      if (typeof dot.animate !== 'function') return;
+      const bottom = `translateY(${index === 0 ? 14 : 7}px)`;
+      const start = { ...current[index], offset: 0, easing: 'cubic-bezier(.42,0,.58,1)' };
+      const frames = open ? [
+        start,
+        { transform: bottom, opacity: 1, offset: .28, easing: 'cubic-bezier(.22,1.18,.36,1)' },
+        { transform: 'translateY(0px)', opacity: 1, offset: 1 }
+      ] : [
+        start,
+        { transform: bottom, opacity: 1, offset: .62 },
+        { transform: bottom, opacity: 0, offset: .76 },
+        { transform: 'translateY(0px)', opacity: 0, offset: .77 },
+        { transform: 'translateY(0px)', opacity: 1, offset: 1 }
+      ];
+      dotAnimations.push(dot.animate(frames, { duration: 560, fill: 'none' }));
+    });
+  }
+
   function setOpen(open, returnFocus = false) {
+    if (menu.classList.contains('is-open') !== open) animateDots(open);
     if (!open && closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
     menu.classList.toggle('is-open', open);
     trigger.setAttribute('aria-expanded', String(open));

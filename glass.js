@@ -12,6 +12,7 @@
   if (!isPhone) return;
   document.documentElement.classList.add('is-phone');
   const svgNS = 'http://www.w3.org/2000/svg';
+  const advancedEnabled = () => document.documentElement.dataset.material !== 'off';
   let initialized = false;
 
   /*
@@ -73,7 +74,7 @@
   }
 
   function installLens() {
-    if (initialized) return;
+    if (initialized || !advancedEnabled()) return;
     initialized = true;
     // Unknown WebKit / WebView paths retain genuine backdrop blur instead of
     // risking shifted or corrupted SVG samples on unverified mobile GPUs.
@@ -264,12 +265,19 @@
 
   let toneFrame = 0, toneTimer = 0, lastToneUpdate = 0;
   function scheduleBackdropTone() {
+    if (!advancedEnabled()) {
+      if (toneFrame) cancelAnimationFrame(toneFrame);
+      if (toneTimer) clearTimeout(toneTimer);
+      toneFrame = toneTimer = 0;
+      return;
+    }
     if (toneFrame || toneTimer) return;
     const wait = Math.max(0, 80 - (performance.now() - lastToneUpdate));
     const queue = () => {
       toneTimer = 0;
       toneFrame = requestAnimationFrame(() => {
         toneFrame = 0;
+        if (!advancedEnabled()) return;
         lastToneUpdate = performance.now();
         const activeButtons = menu.classList.contains('is-open') ? buttons : [button];
         activeButtons.forEach(updateBackdropTone);
@@ -294,12 +302,12 @@
   }
   buttons.forEach(control => {
     control.addEventListener('pointerdown', event => {
-      positionLight(control, event);
+      if (advancedEnabled()) positionLight(control, event);
       control.classList.add('is-pressed');
       scheduleBackdropTone();
     }, { passive: true });
     control.addEventListener('pointermove', event => {
-      if (control.classList.contains('is-pressed')) positionLight(control, event);
+      if (advancedEnabled() && control.classList.contains('is-pressed')) positionLight(control, event);
     }, { passive: true });
     control.addEventListener('pointerup', () => resetLight(control), { passive: true });
     control.addEventListener('pointercancel', () => resetLight(control), { passive: true });
@@ -313,9 +321,12 @@
   });
   backdropObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style', 'class', 'src'] });
   const sampleInterval = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2 ? 240 : 120;
-  window.setInterval(() => { if (!document.hidden) scheduleBackdropTone(); }, sampleInterval);
+  window.setInterval(() => { if (!document.hidden && advancedEnabled()) scheduleBackdropTone(); }, sampleInterval);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleBackdropTone(); });
-  window.addEventListener('portfolio:appearance', scheduleBackdropTone);
+  window.addEventListener('portfolio:appearance', () => {
+    if (advancedEnabled()) installLens();
+    scheduleBackdropTone();
+  });
   menu.addEventListener('transitionrun', scheduleBackdropTone);
   document.fonts?.ready.then(scheduleBackdropTone);
   scheduleBackdropTone();
