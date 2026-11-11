@@ -43,8 +43,8 @@ body{font-family:MiSans,'Microsoft YaHei',sans-serif}
 
 /* A luminous inner wave and a persistent, softly blurred outer ring. */
 .portrait{--portrait-outer-gap:28px;--portrait-ripple-scale:1.22;--portrait-ring-scale:1.07}
-.portrait-ring{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:50%;background:radial-gradient(circle,rgba(255,250,213,.96) 65%,rgba(250,231,158,.96) 85%,rgba(246,215,122,.92) 100%);box-shadow:0 0 24px rgba(230,188,79,.18);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);animation:portrait-ring-breathe 4s ease-in-out infinite;pointer-events:none}
-.portrait-ring::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle,transparent 80%,rgba(255,250,203,.18) 83%,rgba(255,255,232,.96) 86.5%,rgba(255,227,131,.50) 89%,transparent 93%);animation:portrait-inner-wave 4s ease-out infinite;pointer-events:none}
+.portrait-ring{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:50%;background:radial-gradient(circle,rgba(255,250,213,.96) 65%,rgba(250,231,158,.96) 82%,rgba(246,215,122,.78) 91%,rgba(246,215,122,.28) 97%,transparent 100%);box-shadow:0 0 24px rgba(230,188,79,.18);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);animation:portrait-ring-breathe 4s ease-in-out infinite;pointer-events:none}
+.portrait-ring::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle,rgba(255,251,220,0) 70%,rgba(255,251,220,.05) 77%,rgba(255,251,220,.16) 82%,rgba(255,251,220,.32) 87%,rgba(255,251,220,.38) 91%,rgba(255,241,190,.24) 95%,rgba(255,241,190,.07) 99%,transparent 100%);animation:portrait-inner-wave 4s ease-out infinite;pointer-events:none}
 .portrait-hdr{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;pointer-events:none}
 .portrait-inner{position:relative;z-index:0;animation:portrait-avatar-breathe 4s ease-in-out infinite}
 .portrait::before,.portrait::after{content:"";position:absolute;border-radius:50%;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}

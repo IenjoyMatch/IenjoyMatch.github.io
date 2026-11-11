@@ -95,15 +95,16 @@
           let p = (position.xy / params.resolution - vec2<f32>(0.5)) * 2.0;
           let radius = length(p);
           let phase = fract(params.time / 4.0);
-          let waveRadius = 0.80 + 0.20 * phase;
-          let distance = (radius - waveRadius) / 0.025;
-          let wideDistance = (radius - waveRadius) / 0.06;
+          let waveRadius = 0.80 + 0.16 * phase;
+          // Two overlapping Gaussian profiles produce a soft feathered highlight.
+          let distance = (radius - waveRadius) / 0.055;
+          let wideDistance = (radius - waveRadius) / 0.12;
           let wave = exp(-distance * distance);
           let glow = exp(-wideDistance * wideDistance);
-          let fade = smoothstep(0.0, 0.18, phase) * (1.0 - smoothstep(0.8, 1.0, phase));
-          let clip = 1.0 - smoothstep(0.98, 1.0, radius);
-          let alpha = (wave * 0.42 + glow * 0.08) * fade * clip;
-          return vec4<f32>(vec3<f32>(1.9, 1.48, 0.65) * alpha, alpha);
+          let fade = smoothstep(0.0, 0.26, phase) * (1.0 - smoothstep(0.62, 1.0, phase));
+          let clip = smoothstep(0.73, 0.84, radius) * (1.0 - smoothstep(0.92, 1.0, radius));
+          let alpha = (wave * 0.20 + glow * 0.14) * fade * clip;
+          return vec4<f32>(vec3<f32>(1.7, 1.38, 0.75) * alpha, alpha);
         }
       ` });
       const pipeline = await device.createRenderPipelineAsync({
