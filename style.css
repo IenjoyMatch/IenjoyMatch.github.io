@@ -46,7 +46,9 @@ body{font-family:MiSans,'Microsoft YaHei',sans-serif}
 .portrait-ring{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:50%;background:radial-gradient(circle,rgba(255,250,213,.96) 65%,rgba(250,231,158,.96) 82%,rgba(246,215,122,.78) 91%,rgba(246,215,122,.28) 97%,transparent 100%);box-shadow:0 0 24px rgba(230,188,79,.18);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);animation:portrait-ring-breathe 4s ease-in-out infinite;pointer-events:none}
 .portrait-ring::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle,rgba(255,251,220,0) 70%,rgba(255,251,220,.05) 77%,rgba(255,251,220,.16) 82%,rgba(255,251,220,.32) 87%,rgba(255,251,220,.38) 91%,rgba(255,241,190,.24) 95%,rgba(255,241,190,.07) 99%,transparent 100%);animation:portrait-inner-wave 4s ease-out infinite;pointer-events:none}
 .portrait-hdr{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;pointer-events:none}
-.portrait-inner{position:relative;z-index:0;animation:portrait-avatar-breathe 4s ease-in-out infinite}
+.portrait-inner{position:absolute;inset:var(--portrait-inset,25px);width:auto;height:auto;z-index:0;animation:portrait-avatar-breathe 4s ease-in-out infinite}
+.portrait-picture{display:block;width:100%;height:100%}
+html.wheel-damping{scroll-behavior:auto}
 .portrait::before,.portrait::after{content:"";position:absolute;border-radius:50%;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .portrait::before{inset:calc(-1 * var(--portrait-outer-gap));z-index:-2;background:radial-gradient(circle,rgba(242,214,135,.18) 70%,rgba(242,214,135,.12) 85%,transparent 100%);box-shadow:0 0 24px rgba(218,179,74,.10);animation:portrait-outer-breathe 4s ease-in-out infinite}
 .portrait::after{inset:0;z-index:-2;background:radial-gradient(circle,rgba(236,202,111,.12) 65%,rgba(236,202,111,.08) 82%,transparent 100%);box-shadow:0 0 20px rgba(218,181,77,.14);opacity:0;animation:portrait-ripple 4s cubic-bezier(.2,.6,.25,1) infinite}
@@ -157,7 +159,7 @@ html.is-phone[data-material="off"] .back-top::before,html.is-phone[data-material
 .hero-copy .kicker{font-size:clamp(10px,.95vw,14px);letter-spacing:.15em;white-space:nowrap}
 .hero h1{font-size:clamp(50px,5.4vw,86px);line-height:.95;letter-spacing:-.065em;margin:26px 0 0}
 .hero .star{margin-left:clamp(10px,1.5vw,22px)}
-.hero-portrait{width:min(100%,500px);padding:clamp(24px,3vw,36px);justify-self:center}
+.hero-portrait{--portrait-inset:clamp(24px,3vw,36px);width:min(100%,500px);padding:var(--portrait-inset);justify-self:center}
 .hero-portrait img{display:block}
 .hero-side{max-width:320px;justify-self:end;align-self:end;padding-bottom:clamp(15px,5vh,60px)}
 .hero-side p{margin:0;font-size:14px}
@@ -186,7 +188,7 @@ html.is-phone[data-material="off"] .back-top::before,html.is-phone[data-material
   .hero-stage{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:28px;padding:38px 0 48px}
   .hero-copy .kicker{font-size:11px;letter-spacing:.14em}
   .hero h1{font-size:clamp(57px,14vw,90px);margin:22px 0 0}
-  .hero-portrait{width:min(70vw,310px);padding:25px;align-self:center;flex:0 0 auto}
+  .hero-portrait{--portrait-inset:25px;width:min(70vw,310px);height:min(70vw,310px);padding:var(--portrait-inset);align-self:center;flex:0 0 auto}
   .hero-side{align-self:flex-start;max-width:280px;padding:0}
   .hero-side p{font-size:13px}
   .work-grid{gap:16px;margin-top:50px}

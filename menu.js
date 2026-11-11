@@ -11,7 +11,6 @@
   const items = [material, theme, top];
   const movingDots = [menu.querySelector('.menu-dot-top'), menu.querySelector('.menu-dot-middle')];
   let dotAnimations = [];
-  let closeTimer = 0;
   let materialTimer = 0;
   let arrowTimer = 0;
 
@@ -27,24 +26,19 @@
       if (typeof dot.animate !== 'function') return;
       const bottom = `translateY(${index === 0 ? 14 : 7}px)`;
       const start = { ...current[index], offset: 0, easing: 'cubic-bezier(.42,0,.58,1)' };
-      const frames = open ? [
+      // Return from the bottom dot in one continuous movement, so the
+      // resting three-dot icon never has to jump or fade back into place.
+      const frames = [
         start,
-        { transform: bottom, opacity: 1, offset: .28, easing: 'cubic-bezier(.22,1.18,.36,1)' },
-        { transform: 'translateY(0px)', opacity: 1, offset: 1 }
-      ] : [
-        start,
-        { transform: bottom, opacity: 1, offset: .62 },
-        { transform: bottom, opacity: 0, offset: .76 },
-        { transform: 'translateY(0px)', opacity: 0, offset: .77 },
+        { transform: bottom, opacity: 1, offset: open ? .28 : .32, easing: 'cubic-bezier(.22,1.18,.36,1)' },
         { transform: 'translateY(0px)', opacity: 1, offset: 1 }
       ];
-      dotAnimations.push(dot.animate(frames, { duration: 560, fill: 'none' }));
+      dotAnimations.push(dot.animate(frames, { duration: open ? 560 : 440, fill: 'none' }));
     });
   }
 
   function setOpen(open, returnFocus = false) {
     if (menu.classList.contains('is-open') !== open) animateDots(open);
-    if (!open && closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
     menu.classList.toggle('is-open', open);
     trigger.setAttribute('aria-expanded', String(open));
     trigger.setAttribute('aria-label', open ? '关闭快捷菜单' : '打开快捷菜单');
@@ -71,13 +65,10 @@
   theme.addEventListener('click', () => appearance.set({ dark: !appearance.get().dark }));
   top.addEventListener('click', () => {
     clearTimeout(arrowTimer);
-    if (closeTimer) clearTimeout(closeTimer);
     top.classList.remove('is-returning');
     void top.offsetWidth;
     top.classList.add('is-returning');
     arrowTimer = window.setTimeout(() => top.classList.remove('is-returning'), 700);
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    closeTimer = window.setTimeout(() => setOpen(false), reduced ? 0 : 430);
   });
   document.addEventListener('pointerdown', event => {
     if (menu.classList.contains('is-open') && !menu.contains(event.target)) setOpen(false);
