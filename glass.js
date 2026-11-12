@@ -21,7 +21,7 @@
    * Modified for a circular web surface using seven SVG backdrop samples and
    * the shader's spectral channel weights. Flutter-specific inputs are replaced
    * by a live browser backdrop, with a blur-only fallback on unverified paths.
-   * See THIRD-PARTY-NOTICES.txt and LICENSE-APACHE-2.0.txt.
+   * See THIRD-PARTY-NOTICES.txt and third-party-licenses/LICENSE-APACHE-2.0.txt.
    */
   function createLensMaps() {
     const size = 128, surfaceSize = 52, radius = surfaceSize / 2;

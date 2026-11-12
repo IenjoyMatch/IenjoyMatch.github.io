@@ -1,11 +1,11 @@
 Third-party notice
 
 The circular edge-refraction and chromatic-dispersion logic in glass.js is adapted from the provided miuix_liquid_lens.frag and AndroidLiquidGlass.
-Copyright 2025 Kyant. Licensed under the Apache License, Version 2.0; see LICENSE-APACHE-2.0.txt.
+Copyright 2025 Kyant. Licensed under the Apache License, Version 2.0; see third-party-licenses/LICENSE-APACHE-2.0.txt.
 
 Modifications: adapted rounded-rectangle SDF refraction to a circular web control, replaced Flutter texture sampling with seven SVG backdrop samples, and approximated directional bloom-stroke lighting for the browser. The reference shader files come from 07lixuanqing/miuix_flutter (Apache License 2.0).
 
-Lenis (lenis-1.3.26.min.js), copyright 2024 darkroom.engineering, is licensed under the MIT License; see Lenis-LICENSE.txt.
+Lenis (lenis-1.3.26.min.js), copyright 2024 darkroom.engineering, is licensed under the MIT License; see third-party-licenses/Lenis-LICENSE.txt.
 
 The Bodoni Moda font is licensed under the SIL Open Font License, Version 1.1; see BodoniModa-OFL.txt.
 
