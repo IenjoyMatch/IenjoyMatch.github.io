@@ -1,7 +1,7 @@
 // An optional HDR highlight; the CSS wave remains the fallback on all screens.
 (() => {
   if (!navigator.gpu || !window.matchMedia || !('IntersectionObserver' in window)) return;
-  // Reuse a single device across both portraits to avoid overlapping GPU contexts.
+  // Keep a single GPU device for portraits that have HDR enabled.
   let sharedDevicePromise = null;
   let sharedDeviceLost = false;
   function getSharedDevice() {
@@ -19,7 +19,8 @@
     }
     return sharedDevicePromise;
   }
-  document.querySelectorAll('.portrait').forEach(portrait => {
+  // The footer keeps its CSS ripple but never creates an HDR canvas.
+  document.querySelectorAll('.portrait.hero-portrait').forEach(portrait => {
     const ring = portrait.querySelector('.portrait-ring');
     if (!ring) return;
 
