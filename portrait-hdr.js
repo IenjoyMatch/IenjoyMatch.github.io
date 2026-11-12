@@ -1,24 +1,42 @@
 // An optional HDR highlight; the CSS wave remains the fallback on all screens.
 (() => {
   if (!navigator.gpu || !window.matchMedia || !('IntersectionObserver' in window)) return;
+  // Reuse a single device across both portraits to avoid overlapping GPU contexts.
+  let sharedDevicePromise = null;
+  let sharedDeviceLost = false;
+  function getSharedDevice() {
+    if (!sharedDevicePromise) {
+      sharedDevicePromise = navigator.gpu.requestAdapter({ powerPreference: 'low-power' })
+        .then(adapter => {
+          if (!adapter) throw new Error('WebGPU unavailable');
+          return adapter.requestDevice();
+        })
+        .then(device => {
+          device.lost.then(() => { sharedDeviceLost = true; });
+          return device;
+        })
+        .catch(() => { sharedDeviceLost = true; return null; });
+    }
+    return sharedDevicePromise;
+  }
   document.querySelectorAll('.portrait').forEach(portrait => {
     const ring = portrait.querySelector('.portrait-ring');
     if (!ring) return;
 
     const highRange = matchMedia('(dynamic-range: high)');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const coarsePointer = matchMedia('(pointer: coarse)');
     let visible = false;
     let disabled = false;
     let initializing = false;
     let gpu = null;
     let frame = 0;
-    let lastDraw = 0;
 
     const active = () => visible && !document.hidden && highRange.matches && !reducedMotion.matches && document.documentElement.dataset.material !== 'off';
 
     function resize() {
       if (!gpu) return;
-      const scale = Math.min(window.devicePixelRatio || 1, 1.5);
+      const scale = Math.min(window.devicePixelRatio || 1, coarsePointer.matches ? 1.25 : 1.5);
       // Use layout dimensions, not the animated transform, to avoid reallocating
       // the GPU surface on every frame of the breathing animation.
       const width = Math.max(1, Math.round(ring.clientWidth * scale));
@@ -38,32 +56,32 @@
     function draw(now) {
       frame = 0;
       if (!gpu || !active()) return stop();
-      if (now - lastDraw >= 33) {
-        lastDraw = now;
-        try {
-          resize();
-          const { device, context, pipeline, bindGroup, buffer, canvas } = gpu;
-          device.queue.writeBuffer(buffer, 0, new Float32Array([canvas.width, canvas.height, now / 1000, 0]));
-          const encoder = device.createCommandEncoder();
-          const pass = encoder.beginRenderPass({
-            colorAttachments: [{
-              view: context.getCurrentTexture().createView(),
-              clearValue: { r: 0, g: 0, b: 0, a: 0 },
-              loadOp: 'clear',
-              storeOp: 'store'
-            }]
-          });
-          pass.setPipeline(pipeline);
-          pass.setBindGroup(0, bindGroup);
-          pass.draw(3);
-          pass.end();
-          device.queue.submit([encoder.finish()]);
-          canvas.hidden = false;
-        } catch (_) {
-          disabled = true;
-          stop();
-          return;
-        }
+      // Keep presentation in step with the display, including high-refresh screens.
+      try {
+        const { device, context, pipeline, bindGroup, buffer, canvas, uniforms } = gpu;
+        uniforms[0] = canvas.width;
+        uniforms[1] = canvas.height;
+        uniforms[2] = now / 1000;
+        device.queue.writeBuffer(buffer, 0, uniforms);
+        const encoder = device.createCommandEncoder();
+        const pass = encoder.beginRenderPass({
+          colorAttachments: [{
+            view: context.getCurrentTexture().createView(),
+            clearValue: { r: 0, g: 0, b: 0, a: 0 },
+            loadOp: 'clear',
+            storeOp: 'store'
+          }]
+        });
+        pass.setPipeline(pipeline);
+        pass.setBindGroup(0, bindGroup);
+        pass.draw(3);
+        pass.end();
+        device.queue.submit([encoder.finish()]);
+        if (canvas.hidden) canvas.hidden = false;
+      } catch (_) {
+        disabled = true;
+        stop();
+        return;
       }
       frame = requestAnimationFrame(draw);
     }
@@ -72,17 +90,22 @@
       initializing = true;
       let device;
       try {
-        const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'low-power' });
-        if (!adapter) throw new Error('WebGPU unavailable');
-        device = await adapter.requestDevice();
+        device = await getSharedDevice();
+        if (!device || sharedDeviceLost) throw new Error('WebGPU unavailable');
+        if (!active()) return;
         const canvas = document.createElement('canvas');
         canvas.className = 'portrait-hdr';
         canvas.setAttribute('aria-hidden', 'true');
         canvas.hidden = true;
+        const scale = Math.min(window.devicePixelRatio || 1, coarsePointer.matches ? 1.25 : 1.5);
+        canvas.width = Math.max(1, Math.round(ring.clientWidth * scale));
+        canvas.height = Math.max(1, Math.round(ring.clientHeight * scale));
         const context = canvas.getContext('webgpu');
         if (!context || typeof context.getConfiguration !== 'function') throw new Error('HDR canvas unavailable');
         device.pushErrorScope('validation');
         context.configure({ device, format: 'rgba16float', alphaMode: 'premultiplied', toneMapping: { mode: 'extended' } });
+        const validationError = await device.popErrorScope();
+        if (validationError) throw validationError;
         if (context.getConfiguration()?.toneMapping?.mode !== 'extended') throw new Error('HDR tone mapping unavailable');
 
         const shader = device.createShaderModule({ code: `
@@ -119,10 +142,10 @@
           layout: pipeline.getBindGroupLayout(0),
           entries: [{ binding: 0, resource: { buffer } }]
         });
-        const validationError = await device.popErrorScope();
-        if (validationError) throw validationError;
-        ring.appendChild(canvas);
-        gpu = { device, context, canvas, pipeline, buffer, bindGroup };
+        // Keep the HDR surface outside the animated CSS mask and backdrop
+        // layer; the shader already feathers its own transparent edges.
+        portrait.appendChild(canvas);
+        gpu = { device, context, canvas, pipeline, buffer, bindGroup, uniforms: new Float32Array(4) };
         device.lost.then(() => {
           disabled = true;
           stop();
@@ -131,7 +154,6 @@
         });
       } catch (_) {
         disabled = true;
-        if (device) device.destroy();
       } finally {
         initializing = false;
         sync();
@@ -156,5 +178,6 @@
     window.addEventListener('portfolio:appearance', sync);
     document.addEventListener('visibilitychange', sync);
     window.addEventListener('resize', resize, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(ring);
   });
 })();
