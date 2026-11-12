@@ -5,4 +5,8 @@ Copyright 2025 Kyant. Licensed under the Apache License, Version 2.0; see LICENS
 
 Modifications: adapted rounded-rectangle SDF refraction to a circular web control, replaced Flutter texture sampling with seven SVG backdrop samples, and approximated directional bloom-stroke lighting for the browser. The reference shader files come from 07lixuanqing/miuix_flutter (Apache License 2.0).
 
+Lenis (lenis-1.3.26.min.js), copyright 2024 darkroom.engineering, is licensed under the MIT License; see Lenis-LICENSE.txt.
+
+The Bodoni Moda font is licensed under the SIL Open Font License, Version 1.1; see BodoniModa-OFL.txt.
+
 This website uses the MiSans font, copyright Xiaomi. The original font license is included as MiSans-LICENSE.pdf.
