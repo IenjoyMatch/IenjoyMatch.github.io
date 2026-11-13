@@ -230,6 +230,7 @@ footer.site-footer,html[data-theme="dark"] footer.site-footer{--footer-gold:#f6e
 @keyframes footer-glow-diffuse{0%{opacity:0;transform:scale(.65)}22%{opacity:.95}70%{opacity:.35}100%{opacity:0;transform:scale(1.45)}}
 @media(prefers-reduced-motion:reduce){.footer-avatar::before,.footer-avatar::after{animation:none;opacity:.35;transform:none}}
 .footer-bird{display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
+html.footer-bird-loading .footer-bird{visibility:hidden}
 .footer-message{margin:36px 0 0;color:rgba(245,246,238,.78);font-size:14px;line-height:1.5}
 .footer-mail-label{margin:17px 0 2px;color:rgba(245,246,238,.45);font-size:9px;font-weight:600;letter-spacing:.15em}
 .footer-side{grid-row:1;align-self:center;justify-self:stretch;display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;min-width:0}
