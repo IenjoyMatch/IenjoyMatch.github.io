@@ -159,6 +159,8 @@ html.is-phone[data-material="off"] .back-top::before,html.is-phone[data-material
 @font-face{font-family:'Bodoni Moda';src:url('BodoniModa-Italic-VF.ttf') format('truetype');font-style:italic;font-weight:400 900;font-display:swap}
 .hero h1 em,footer em{font-family:'Bodoni Moda',Georgia,serif;font-style:italic;font-weight:400}
 .section h2 em{font-family:'Bodoni Moda',Georgia,serif;font-style:normal;font-weight:700}
+/* A text-sized optical cut keeps fine serifs legible on small and high-density screens. */
+.hero h1 em,.section h2 em,.site-footer .footer-quote em{font-optical-sizing:none;font-variation-settings:'opsz' 8}
 .hero-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr) minmax(0,1fr);gap:clamp(18px,2.5vw,38px);align-items:center;flex:1;padding:50px 0 65px}
 .hero-copy{min-width:0;position:relative;z-index:1}
 .hero-copy .kicker{font-size:clamp(10px,.95vw,14px);letter-spacing:.15em;white-space:nowrap}
@@ -211,7 +213,10 @@ footer.site-footer,html[data-theme="dark"] footer.site-footer{--footer-gold:#f6e
   footer.site-footer,html[data-theme="dark"] footer.site-footer{background-image:radial-gradient(ellipse 58% 52% at 50% 0%,var(--paper) 10%,transparent 100%),linear-gradient(180deg,var(--paper) 0%,color-mix(in srgb,var(--paper) 28%,#f6e94e) 18%,#f6e94e 44%,#f6e94e 100%)}
 }
 .footer-panel{position:relative;isolation:isolate;display:flex;flex:1}
-.footer-panel::before{content:"";position:absolute;z-index:0;top:-23px;left:50%;width:clamp(140px,17vw,230px);height:48px;transform:translateX(-50%);border-radius:42px 42px 0 0;background:var(--footer-paper)}
+.footer-panel::before{content:"";position:absolute;z-index:0;top:-23px;left:50%;width:clamp(240px,32vw,420px);max-width:100%;height:48px;transform:translateX(-50%);border-radius:42px 42px 0 0;background:var(--footer-paper)}
+@supports (mask-image:linear-gradient(#000,#000)) or (-webkit-mask-image:linear-gradient(#000,#000)){
+  .footer-panel::before{border-radius:0;-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 80' preserveAspectRatio='none'%3E%3Cpath d='M0 40 C82 40 96 37 132 15 C150 4 157 0 185 0 H415 C443 0 450 4 468 15 C504 37 518 40 600 40 V80 H0Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 80' preserveAspectRatio='none'%3E%3Cpath d='M0 40 C82 40 96 37 132 15 C150 4 157 0 185 0 H415 C443 0 450 4 468 15 C504 37 518 40 600 40 V80 H0Z'/%3E%3C/svg%3E");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+}
 .footer-card{position:relative;z-index:1;isolation:isolate;overflow:hidden;width:100%;min-height:clamp(620px,calc(100svh - 190px),850px);display:grid;grid-template-columns:minmax(135px,1fr) minmax(0,2.25fr) minmax(135px,1fr);grid-template-rows:1fr;gap:12px 24px;padding:clamp(40px,3.5vw,52px) clamp(25px,2.3vw,34px) clamp(25px,2.3vw,34px);border-radius:clamp(24px,2.8vw,40px);background:var(--footer-paper)}
 .footer-card::before{content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 50% 76%,rgba(246,233,78,.11),transparent 42%),repeating-radial-gradient(ellipse at 50% 75%,transparent 0 78px,rgba(246,233,78,.05) 79px 80px,transparent 81px 139px)}
 .footer-card::after{content:"";position:absolute;inset:12px;z-index:-1;pointer-events:none;border:1px solid rgba(246,233,78,.13);border-radius:clamp(17px,2vw,31px)}
@@ -246,7 +251,7 @@ footer.site-footer,html[data-theme="dark"] footer.site-footer{--footer-gold:#f6e
 .footer-back:focus-visible{outline-color:#282915}
 @media(max-width:760px){
   footer.site-footer,html[data-theme="dark"] footer.site-footer{padding:112px 12px 18px;gap:10px}
-  .footer-panel::before{top:-17px;height:34px;width:130px;border-radius:28px 28px 0 0}
+  .footer-panel::before{top:-17px;height:34px;width:min(66%,260px)}
   .footer-card{min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;gap:26px 16px;padding:42px 24px 32px;border-radius:26px}
   .footer-card::before{background:radial-gradient(circle at 50% 68%,rgba(246,233,78,.11),transparent 52%),repeating-radial-gradient(circle at 50% 68%,transparent 0 78px,rgba(246,233,78,.05) 79px 80px,transparent 81px 139px)}
   .footer-card::after{inset:9px;border-radius:19px}
@@ -289,11 +294,13 @@ html[data-material="off"] header.nav::before{-webkit-backdrop-filter:none;backdr
 .footer-pages a[href="#work"],.footer-pages a[href="#experience"]{--footer-roll-step:110ms}
 .footer-pages a[href="#about"],.footer-back{--footer-roll-step:36.6667ms}
 .footer-social .footer-link{--footer-roll-step:22ms}
+.footer-social .social-xiaohongshu{--footer-roll-step:55ms}
+.footer-social .social-bilibili{--footer-roll-step:36.6667ms}
 .footer-mail{--footer-roll-step:6.875ms}
 /* On wide screens the side columns share the avatar's grid row. */
 @media(min-width:761px){
   footer.site-footer,html[data-theme="dark"] footer.site-footer{gap:6px;padding-bottom:clamp(6px,.5vw,10px)}
-  .footer-panel::before{top:-32px;width:clamp(230px,30vw,500px);height:64px;border-radius:50px 50px 0 0}
+  .footer-panel::before{top:-32px;width:clamp(280px,28vw,500px);height:64px}
   .footer-card{min-height:max(620px,calc(100svh - clamp(112px,13svh,136px) - 28px));grid-template-rows:minmax(0,1fr) auto auto auto auto auto auto minmax(0,.35fr);row-gap:0;padding-top:clamp(44px,5svh,64px);padding-bottom:clamp(12px,2.4svh,25px)}
   .footer-center{display:contents}
   .footer-eyebrow,.site-footer .footer-quote,.footer-avatar,.footer-message,.footer-mail-label,.footer-mail{grid-column:2;justify-self:center;text-align:center}
